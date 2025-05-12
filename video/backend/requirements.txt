@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart          # para manejar uploads en FastAPI
+python-dotenv             # carga tu .env en config.py
+transformers              # modelo ViT de emociones
+torch
+torchvision
+Pillow
+numpy
+opencv-python             # DNN de OpenCV
+face_recognition          # encoding facial con dlib
