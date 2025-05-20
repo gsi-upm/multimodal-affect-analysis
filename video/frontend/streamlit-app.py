@@ -16,7 +16,7 @@ from config import API_URL, EMOTION_MODEL_NAME, PROTOTXT_PATH, CAFFE_MODEL_PATH,
 
 # Configuración de la página y estilos CSS (sin tocar)
 st.set_page_config(
-    page_title="Face and Emotion Recognition System",
+    page_title="Sistema de reconocimiento facial y de emociones",
     page_icon="📷",
     initial_sidebar_state="collapsed"
 )
@@ -133,7 +133,7 @@ if "current_mode" not in st.session_state:
 #################
 # TÍTULO Y TABS
 #################
-st.markdown('<div class="big-center-title">Face and Emotion Recognition System</div>', unsafe_allow_html=True)
+st.markdown('<div class="big-center-title">Sistema de reconocimiento facial y de emociones</div>', unsafe_allow_html=True)
 st.markdown("""
     <style>
     [data-baseweb="tab-list"] button[data-baseweb="tab"] {
