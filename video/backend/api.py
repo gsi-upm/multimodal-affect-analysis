@@ -9,12 +9,13 @@ import cv2
 import face_recognition
 import io
 from PIL import Image
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 import json
 import uuid
 import random
 import base64
-from datetime import datetime
 
 from config import EMOTION_MODEL_NAME, PROTOTXT_PATH, CAFFE_MODEL_PATH, REGISTERED_FACES_FILE
 
@@ -128,7 +129,7 @@ async def register_face(name: str = Form(...), file: UploadFile = File(...)):
     fid = str(uuid.uuid4())
     encoding = encs[0]
     color = [random.randint(0, 255) for _ in range(3)]
-    time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time_str = datetime.now(ZoneInfo("Europe/Madrid")).strftime("%Y-%m-%d %H:%M:%S")
 
     # face_img está en RGB, OpenCV espera BGR asi que convertimos
     face_bgr = cv2.cvtColor(face_img, cv2.COLOR_RGB2BGR)
