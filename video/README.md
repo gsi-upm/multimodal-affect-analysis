@@ -29,13 +29,13 @@ Proyecto completo de reconocimiento facial y detección de emociones, compuesto 
 1. Clona este repositorio y sitúate en la carpeta:
 
    ```bash
-   git clone https://github.com/oscarparro/streamlit-app.git
-   cd streamlit-app-docker
+   git clone https://github.com/gsi-upm/multimodal-affect-analysis/.git
+   cd video
 
 2. Crea un entorno virtual
 
    ```bash
-   python3 -m venv .venv
+   python -m venv .venv
    source .venv/bin/activate     # Linux / macOS
    .venv\Scripts\activate        # Windows
    ```
