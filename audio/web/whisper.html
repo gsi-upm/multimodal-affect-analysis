@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Whisper</h1>
+
+    <!-- Form to upload audio -->
+    <form id="uploadForm">
+        <label for="fileInput">Select an audio file:</label>
+
+         <!-- Whisper accepts .wav, .mp3 formats-->
+        <input type="file" id="fileInput" name="file" accept=".mp3, .wav" required>
+   
+        <select id="languageSelect" name="language" required>
+            <option value="en" id="English">English</option>
+            <option value="es" id="Español">Español</option>
+            <option value="auto">Auto detection</option>
+        </select>
+        <!--Transcribe button-->
+        <button type="submit" id="submitButton">Transcribe</button>
+    </form>
+     
+    <!-- Response message -->
+    <p id="responseMessage"></p>
+    <!-- Horizontal container -->
+    <div id="outputContainer">
+       <!-- Left container: Transcription--> 
+        <div class="outputBox transcription">
+          <h2>Transcription</h2>
+          <div id="transcription"></div>
+          <h2>Detected Language</h2>
+          <div id="detectedLanguage"></div>
+        </div>
+      <!--Right container: Spectogram-->
+        <div class="outputBox spectrogram">
+          <h2>Mel Spectogram</h2>
+          <img id="melImage" src=""  />
+        </div>
+      </div>
+
+
+</div>
+
+</html>
+    
+    <script>
+    // Se añade el evento DOMContentLoaded para asegurar que el script se ejecute después de cargar el DOM.
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        const form = document.getElementById('uploadForm'); 
+        const responseMessage = document.getElementById('responseMessage');
+        const submitButton = document.getElementById('submitButton');
+    
+        // Se controla el envío del formulario
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();  // evita eventos por defecto
+            responseMessage.textContent = 'Processing...'; 
+            console.log("Form sent");
+
+            submitButton.disabled = true; // Evita reenvíos del formulario
+
+            // Se accede al archivo y el idioma seleccionado
+            const fileInput = document.getElementById('fileInput');
+            const languageSelect = document.getElementById("languageSelect");
+
+            if (!languageSelect) {
+                console.error('The language selector is not found on the DOM.');
+                return; // Evita que el formulario continúe sin el campo seleccionado
+            }
+
+            const file = fileInput.files[0];
+            if (!file) {
+                responseMessage.textContent = 'Please, select a file.';
+                submitButton.disabled = false; 
+                console.log("File was not selected");
+                return;
+            }
+            const language = languageSelect.value;  // Se obtiene el valor del idioma seleccionado
+            const formData = new FormData();
+            formData.append('file', file); // Agrega el archivo al objeto FormData
+            formData.append("language", language); // Agrega el idioma seleccionado
+
+            console.log("File added to FormData");
+
+            // Se manda la solicitud POST a la API
+            try {
+                console.log("Making request to API...");
+                const response = await fetch('http://127.0.0.1:8000/whisper', { 
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log("API request sent. Waiting for response...");
+
+                // Verifica si la respuesta es correcta
+                if (response.ok) {
+                    const result = await response.json();
+
+                    console.log("Base64 string:", result.spectrogram_image_base64);
+                    // Mostrar la imagen del espectrograma
+                    const imgElement = document.getElementById("melImage");
+                    imgElement.src = `data:image/png;base64,${result.spectrogram_image_base64}`;
+                    
+                    // Mostrar la transcripción en el div
+                    const transcriptionDiv = document.getElementById('transcription');
+                    transcriptionDiv.textContent =  result.text;
+                    
+                    // Mostrar el idioma detectado
+                    const languageDiv = document.getElementById('detectedLanguage');
+                    languageDiv.textContent = result.language;
+
+                    console.log("Transcription received:", result.text);
+                    responseMessage.textContent = ''; // Limpia el mensaje de procesamiento
+                } else {
+                    responseMessage.textContent = `Transcription failed: ${response.statusText}`;
+                    console.log("Transcription failed, status:", response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseMessage.textContent = "API's connection failed";
+            } finally {
+                submitButton.disabled = false; // Habilita el botón nuevamente
+            }
+        });
+
+    });  // Fin de DOMContentLoaded
+
+    </script>
+</body>
+</html>

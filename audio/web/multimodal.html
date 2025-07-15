@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title> Multimodal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Multimodal Analysis</h1> 
+
+  <form id="multimodalForm">
+    <label for="fileInput">Select an audio file:</label>
+    
+    <select id="languageSelect" name="language" required>
+      <option value="auto">Auto Detect</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
+
+    <input type="file" id="fileInput" name="file" accept=".wav" required />
+    <button type="submit">Analyze</button>
+  </form>
+
+  <p id="responseMessage"></p>
+
+  <div id="outputContainer">
+    <div id="textOutput" class="outputBox transcription">
+      <h2>Content Analysis</h2>
+      <p><strong>Detected Language:</strong> <span id="detectedLanguage"></span></p>
+      <p><strong>Sentiment:</strong> <span id="textSentiment"></span></p>
+    </div>
+
+    <div id="audioOutput" class="outputBox spectrogram">
+      <h2>Audio Emotion</h2>
+      <div id="emotionResults">
+        <div id="audioEmotions"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('multimodalForm');
+    const responseMessage = document.getElementById('responseMessage');
+    //const transcription = document.getElementById('transcription');
+    const detectedLanguage = document.getElementById('detectedLanguage');
+    const textSentiment = document.getElementById('textSentiment');
+    const textEmotion = document.getElementById('textEmotion');
+    const audioEmotions = document.getElementById('audioEmotions');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      responseMessage.textContent = 'Processing...';
+
+      const file = document.getElementById('fileInput').files[0];
+      const language = document.getElementById('languageSelect').value;
+
+      if (!file) {
+        responseMessage.textContent = 'Please select a file.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('language', language);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/multimodal', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          responseMessage.textContent = 'Analysis complete.';
+          detectedLanguage.textContent = result.language;
+          textSentiment.textContent = result.text_sentiment;
+
+          // Emotion table for audio
+          const table = document.createElement('table');
+          const tbody = document.createElement('tbody');
+          table.appendChild(tbody);
+
+         
+          // Table headers
+          const headerRow = document.createElement('tr');
+          const labelHeader = document.createElement('th');
+          labelHeader.textContent = 'Emotion';
+          const scoreHeader = document.createElement('th');
+          scoreHeader.textContent = 'Score (%)';
+          headerRow.appendChild(labelHeader);
+          headerRow.appendChild(scoreHeader);
+          tbody.appendChild(headerRow);
+
+          result.audio_emotions.forEach(e => {
+            const row = document.createElement('tr');
+            const emotionCell = document.createElement('td');
+            emotionCell.textContent = e.label;
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = (e.score * 100).toFixed(1) + '%';
+            row.appendChild(emotionCell);
+            row.appendChild(scoreCell);
+            tbody.appendChild(row);
+          });
+
+          audioEmotions.innerHTML = '';
+          audioEmotions.appendChild(table);
+
+        } else {
+          responseMessage.textContent = 'Error: ' + result.detail;
+        }
+
+      } catch (error) {
+        console.error('Request error:', error);
+        responseMessage.textContent = 'API connection error.';
+      }
+    });
+  </script>
+</body>
+</html>

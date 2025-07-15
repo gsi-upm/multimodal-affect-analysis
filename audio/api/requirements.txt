@@ -1,0 +1,9 @@
+fastapi==0.115.4
+torch==2.5.1
+uvicorn
+whisper==1.1.10
+transformers
+pysentimiento
+matplotlib
+numpy
+librosa

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Whisper Emotions</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Emotion Detection</h1> 
+
+  <form id="emotionForm">
+    <label for="fileInput">Select an audio file:</label>
+    <select id="languageSelect" name="language" required>
+      <option value="en" id="English">English</option>
+      <option value="es" id="Español">Español</option>
+      
+    <input type="file" id="fileInput" name="file" accept=".wav" required />
+    <button type="submit">Analyze Emotions</button>
+    </select>
+
+  </form>
+
+  <p id="responseMessage"></p>
+  <div id="emotionOutput" class="outputBox">
+    <h2>Emotion Results</h2>
+    <div id="emotionResults"></div>
+  </div>
+
+
+  <script>
+    // A form is created to send data to the server
+    const form = document.getElementById('emotionForm');
+    const responseMessage = document.getElementById('responseMessage');
+    const emotionResults = document.getElementById('emotionResults');
+
+    // A sent event is added to send data to the server
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      responseMessage.textContent = 'Processing...';
+
+
+      // The selected file is obtained by the user
+      const file = document.getElementById('fileInput').files[0];
+
+      if (!file) {
+        responseMessage.textContent = 'Please select a file.';
+        return;
+      }
+      const language = languageSelect.value;  // Selected language value is obtained
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append("language", language)
+
+      try {
+        // Realizar la solicitud POST al servidor
+        console.log('Sending request to the backend...');
+        const response = await fetch('http://127.0.0.1:8000/emotion', {
+          method: 'POST',
+          body: formData
+        });
+        // Obtener la respuesta del servidor
+        const result = await response.json();
+        console.log('Received emotions:', result);
+
+        if (response.ok) {
+          // Crear una tabla para mostrar las emociones
+          const table = document.createElement('table');
+          const tbody = document.createElement('tbody');
+          table.appendChild(tbody);
+
+          // Crear los encabezados de la tabla
+          const headerRow = document.createElement('tr');
+          const labelHeader = document.createElement('th');
+          labelHeader.textContent = 'Emotion';
+          const scoreHeader = document.createElement('th');
+          scoreHeader.textContent = 'Score (%)';
+          headerRow.appendChild(labelHeader);
+          headerRow.appendChild(scoreHeader);
+          tbody.appendChild(headerRow);
+
+          // Agregar las filas con las emociones
+          result.emotions.forEach(e => {
+            const row = document.createElement('tr');
+            const emotionCell = document.createElement('td');
+            emotionCell.textContent = e.label;
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = (e.score * 100).toFixed(1) + '%';
+            row.appendChild(emotionCell);
+            row.appendChild(scoreCell);
+            tbody.appendChild(row);
+          });
+
+          // Insert table in the results div
+          emotionResults.innerHTML = '';  // Clean any previous content
+          emotionResults.appendChild(table);
+
+          responseMessage.textContent = 'Analysis complete.';
+        } else {
+          responseMessage.textContent = 'Analysis failed: ' + response.statusText;
+        }
+      } catch (error) {
+        console.error('Error during request:', error);
+        responseMessage.textContent = 'API connection error.';
+      }
+    });
+  </script>
+</body>
+</html>
