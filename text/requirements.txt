@@ -1,0 +1,4 @@
+litserve==0.2.13
+transformers==4.53.2
+torch==2.7.1
+pytest

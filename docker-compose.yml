@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  text-api:
+    build:
+      context: ./text 
+      dockerfile: Dockerfile
+    image: ghcr.io/gsi-upm/multimodal-affect-analysis-text-api:0.0.1
+    container_name: text-api
+    ports:
+      - 8000:8000
+    networks:
+      - model_network
+
+    develop:
+    # Create a `watch` configuration to update the app
+    # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: ./text
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+networks:
+  model_network:
+    driver: bridge
