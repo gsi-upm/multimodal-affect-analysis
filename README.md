@@ -89,10 +89,14 @@ La web se abre en `http://localhost:8080` y la documentación de la API en `http
 
 **Paso 2. Analizar la voz y la transcripción**
 
+Selecciona un fichero de audio y sitúalo dentro de la carpeta /audio (utilizando como referencia la raiz del repositorio). Suponiendo que el fichero sea un .wav que se llame "ejemplo.wav", deberíamos ejecutar el comando abajo mostrado. Si el fichero tiene un nombre diferente, se debe sustituir "ejemplo.wav" por el nombre de nuestro fichero de audio en el comando:
+
+**NOTA**: el formato *mp3* está permitido (en este caso, escribiríamos "ejemplo.mp3")
+
 ```bash
 curl --fail-with-body --silent --show-error \
   http://localhost:8000/multimodal \
-  -F 'file=@ejemplo.wav' -F 'language=auto'
+  -F 'file=@audio/ejemplo.wav' -F 'language=auto'
 ```
 
 La respuesta incluye `message`, `filename`, `language`, `transcription`, `text_sentiment` y `audio_emotions`; esta última propiedad contiene pares `label` y `score`. Para obtener únicamente las emociones de voz se utiliza `POST /emotion` con `language=es` o `language=en`. Para transcribir y obtener el espectrograma se utiliza `POST /whisper`, que devuelve `text`, `language` y `spectrogram_image_base64`, además de los datos del archivo.
@@ -156,8 +160,3 @@ Se cierra Streamlit con `Ctrl+C`. Desde la raíz del repositorio se detiene el b
 ```bash
 docker compose -f video/docker-compose.yml down
 ```
-
-**Reproducibilidad y documentación de apoyo**
-
-Las versiones indicadas reflejan los Dockerfiles y manifiestos de la revisión seleccionada. Fijar el código no bloquea las imágenes base, todas las dependencias ni los pesos descargados; audio y vídeo requieren validar el entorno resuelto antes de considerar el despliegue reproducible. El servidor de texto carga el modelo de `roblesadrian`, mientras que `text/example.py` apunta a otro identificador de `gsi-upm`; la demo anterior sigue el servidor.
-
