@@ -2,7 +2,7 @@ fastapi==0.115.4
 torch==2.5.1
 uvicorn
 whisper==1.1.10
-transformers
+transformers==4.46.3
 pysentimiento
 matplotlib
 numpy
